@@ -1,73 +1,94 @@
-# React + TypeScript + Vite
+# QuickChat Frontend Engineering Guide
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Technical documentation for the QuickChat React client application.
 
-Currently, two official plugins are available:
+## ⚡ Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The QuickChat frontend is a high-performance **Single Page Application (SPA)** built with **React 19** and **Vite**. It prioritizes type safety, component modularity, and real-time responsiveness. The accessible UI is constructed using **Radix UI** primitives and styled with **TailwindCSS v4**, while global state is managed via **Zustand**.
 
-## React Compiler
+## 🏗 Architecture & Design
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Directory Structure
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+frontend/src/
+├── components/         # Feature-based & UI Components
+│   ├── ui/             # Reusable Atoms (Buttons, Inputs, Dialogs) - utilizing Shadcn/Radix
+│   ├── auth/           # Authentication Forms (Login, Register)
+│   ├── chat/           # Chat Interface (MessageList, Input, Bubble)
+│   ├── sidebar/        # Navigation & User Lists
+│   └── profile/        # User Settings & Profile View
+├── stores/             # Global State Managers (Zustand)
+├── services/           # API Integration Layer (Axios instances)
+├── hooks/              # Custom React Hooks
+├── types/              # TypeScript Definitions & Interfaces
+└── pages/              # Route Controllers (Pages)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### State Management Strategy (Zustand)
+We strictly separate concerns by domain areas using Zustand stores:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+*   **`useAuthStore`**: Manages user session, JWT checks, login/signup actions, and socket connection initialization.
+*   **`useChatStore`**: Handles message history, selected conversation, typing indicators, and real-time message blending.
+*   **`useFriendStore`**: Manages friend lists, pending requests, and online status updates.
+*   **`useSocketStore`**: Encapsulates the Socket.io client instance and connection status.
+*   **`useThemeStore`**: Controls dark/light mode preferences.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Real-time Communication
+The `useSocketStore` maintains a singleton Socket.io connection. Listeners are attached within individual components (using `useEffect`) or centrally in stores to react to events like `newMessage`, `typing`, or `onlineUsers`.
+
+## 🛠 Technology Stack
+
+*   **Core**: React 19, TypeScript, Vite
+*   **Styling**: TailwindCSS 4, Tailwind Merge, CLSX, Lucide React (Icons)
+*   **Deep UI**: Radix UI (Dialog, Popover, Tooltip, Avatar, etc.)
+*   **State**: Zustand v5
+*   **Forms**: React Hook Form + Zod (Schema Validation)
+*   **Network**: Axios (HTTP), Socket.io-client (WebSocket)
+*   **UX**: Sonner (Toast Notifications), Emoji Mart (Picker)
+
+## 🚀 Development Setup
+
+### 1. Environment Variables
+Create a `.env` file in the `frontend` root.
+*(Note: Vite exposes variables prefixed with `VITE_`)*
+
+```env
+VITE_API_URL=http://localhost:5001/api
 ```
+
+### 2. Install Dependencies
+```bash
+npm install
+```
+
+### 3. Running Locally
+Start the development server with Hot Module Replacement (HMR):
+```bash
+npm run dev
+```
+
+### 4. Build for Production
+Type-check and build the optimized assets:
+```bash
+npm run build
+```
+
+### 5. Linting
+Run ESLint to check for code quality issues:
+```bash
+npm run lint
+```
+
+## 🧩 Component Guidelines
+
+*   **Atomic Design**: Place generic UI elements (buttons, inputs) in `components/ui`.
+*   **Feature Isolation**: Place complex logic-heavy components in their respective feature folders (e.g., `components/chat`).
+*   **Composition**: Prefer passing `children` or using slots over complex prop drilling.
+*   **Hooks**: Extract reusable logic (e.g., specific event listeners) into `hooks/`.
+
+## 🎨 Styling Guide
+
+*   Use `tailwind-merge` (`cn` utility) when accepting `className` props to allow overrides.
+*   Stick to the defined color palette in `index.css` (CSS Variables).
+*   Ensure all interactive elements have accessible labels (via `aria-label` or visible text).

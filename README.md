@@ -1,149 +1,168 @@
-# QuickChat — Ứng dụng nhắn tin thời gian thực (MERN + Socket.io)
+# QuickChat - Real-time Messaging Application
+
+> A robust, scalable, and feature-rich real-time chat application built with the MERN stack and Socket.io.
 
 ![License](https://img.shields.io/badge/license-ISC-blue.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-green.svg)
 ![React](https://img.shields.io/badge/react-19.2.0-blue.svg)
 
-## 1. Phân tích
+## 📖 Overview
 
-QuickChat là hệ thống chat thời gian thực gồm hai miền: REST API (Express) và WebSocket (Socket.io) chạy chung một HTTP server. Backend sử dụng MongoDB/Mongoose, xác thực JWT, và lưu media qua Cloudinary. Frontend dùng React 19 + TypeScript (Vite), quản lý state bằng Zustand, giao tiếp qua Axios với cơ chế refresh token tự động.
+QuickChat is a sophisticated communication platform designed to provide seamless real-time messaging experiences. It leverages **WebSockets** for instant data transmission and **MongoDB** for persistent data storage. The application features a modern, responsive user interface built with **React** and **TailwindCSS**, ensuring accessibility and performance across devices.
 
-Mục tiêu README:
-1. Chuẩn hoá cách chạy dự án cục bộ theo chuẩn kỹ sư.
-2. Liệt kê biến môi trường tối thiểu để hệ thống hoạt động ổn định.
-3. Làm rõ kiến trúc, điểm entry, và các tuyến API chính.
+## 🏗 Architecture
 
-## 2. Kiến trúc tổng quan
+The system follows a **Client-Server** architecture decoupled via REST APIs and a full-duplex WebSocket channel.
 
+```mermaid
+graph TD
+    Client[Client (React + Vite)]
+    LB[Load Balancer / Nginx (Optional)]
+    Server[Node.js + Express Server]
+    DB[(MongoDB)]
+    Socket[Socket.io Service]
+    Cloud[Cloudinary CDN]
+
+    Client -- HTTP Requests --> Server
+    Client -- WebSocket Events --> Socket
+    Server -- Database Queries --> DB
+    Server -- File Uploads --> Cloud
+    Socket -- Real-time Updates --> Client
 ```
-React (Vite + TS)
-      │  HTTP (Axios)
-      ▼
-Express REST API  +  Socket.io (Realtime)
-      │
-      ▼
-MongoDB (Mongoose)
-```
 
-Điểm entry quan trọng:
-- Backend: `backend/src/server.js` khởi tạo middleware, router, swagger, DB và server Socket.io. @backend/src/server.js#1-53
-- Socket: `backend/src/socket/index.js` tạo `app`, `server`, và `io`. @backend/src/socket/index.js#1-59
-- Frontend: `frontend/src/main.tsx`. @frontend/src/main.tsx#1-10
+## 🛠 Technology Stack
 
-API docs: `http://<HOST>:<PORT>/api-docs` đọc từ `backend/src/swagger.json`.
+### Backend
+*   **Runtime**: Node.js (Latest LTS)
+*   **Framework**: Express.js
+*   **Database**: MongoDB (managed via Mongoose)
+*   **Real-time Engine**: Socket.io
+*   **Authentication**: JWT (JSON Web Tokens) & Cookies
+*   **Media Storage**: Cloudinary using Multer
+*   **Security**: Bcrypt (hashing), CORS configuration, Helmet (implied best practice)
 
-## 3. Công nghệ chính
+### Frontend
+*   **Framework**: React 19 (via Vite)
+*   **Language**: TypeScript
+*   **Styling**: TailwindCSS 4, Shadcn/Radix UI Primitives (implied by dependencies), Lucide React
+*   **State Management**: Zustand
+*   **HTTP Client**: Axios
+*   **Forms**: React Hook Form + Zod Validation
 
-- Backend: Node.js (ESM), Express 5, Mongoose, Socket.io, JWT, Multer, Cloudinary, Swagger UI.
-- Frontend: React 19, TypeScript (strict), Vite, TailwindCSS, Zustand, Axios, Socket.io-client.
+## 🚀 Key Features
 
-## 4. Yêu cầu hệ thống
+*   **Real-time Messaging**: Instant delivery of messages, typing indicators, and online status.
+*   **User Authentication**: Secure Signup/Login flow with JWT and HTTP-only cookies.
+*   **Media Sharing**: Image upload capability integrated seamlessly into the chat flow.
+*   **User Profiles**: Customizable profiles with avatars and status.
+*   **Responsive Design**: Mobile-first approach using TailwindCSS.
+*   **Group & 1-to-1 Chat**: Flexible conversation models.
 
-- Node.js >= 18 (khuyến nghị LTS).
-- MongoDB (local hoặc Atlas).
-- Cloudinary account (nếu dùng upload ảnh).
+## ⚙️ Installation & Setup
 
-## 5. Cài đặt & chạy nhanh
+### Prerequisites
+*   Node.js (v18 or higher)
+*   MongoDB Instance (Local or Atlas)
+*   Cloudinary Account (for media features)
 
-### 5.1 Backend
-
+### 1. Clone the Repository
 ```bash
-npm install
-npm run dev
+git clone https://github.com/your-username/QuickChat.git
+cd QuickChat
 ```
 
-Tạo `backend/.env`:
+### 2. Backend Setup
+Navigate to the backend directory and install dependencies:
+```bash
+cd backend
+npm install
+```
 
+Create a `.env` file in `backend/` based on the following template:
 ```env
-# Server
+# Server Configuration
 PORT=5001
 CLIENT_URL=http://localhost:5173
+FRONTEND_URL=http://localhost:5173
 
-# MongoDB
-MONGODB_CONNECTIONSTRING=mongodb+srv://<user>:<pass>@cluster.mongodb.net/quickchat
+# Database
+MONGODB_CONNECTIONSTRING=mongodb+srv://<user>:<password>@cluster.mongodb.net/quickchat
 
-# JWT
-ACCESS_TOKEN_SECRET=your_jwt_secret
+# Security
+ACCESS_TOKEN_SECRET=your_super_secret_jwt_key
 
-# Cloudinary
-CLOUDINARY_CLOUD_NAME=...
-CLOUDINARY_API_KEY=...
-CLOUDINARY_API_SECRET=...
+# Cloudinary (Media Storage)
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 
-# Email (tuỳ chọn, dùng cho quên mật khẩu)
+# Email Service (Optional - for Password Reset)
 EMAIL_SERVICE=gmail
-EMAIL_USER=you@example.com
-EMAIL_PASSWORD=app_password
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASSWORD=your_app_password
 ```
 
-### 5.2 Frontend
-
+Start the Development Server:
 ```bash
-npm install
 npm run dev
+# Server will run on http://localhost:5001
 ```
 
-Tạo `frontend/.env`:
+### 3. Frontend Setup
+Navigate to the frontend directory and install dependencies:
+```bash
+cd ../frontend
+npm install
+```
 
+Create a `.env` file in `frontend/` (if required by your logic, otherwise Vite usually proxies or uses constants):
 ```env
 VITE_API_URL=http://localhost:5001/api
 ```
 
-## 6. Biến môi trường (tóm tắt tối thiểu)
-
-- `PORT`: cổng backend (mặc định 5001).
-- `CLIENT_URL`: dùng cho CORS + Socket.io.
-- `MONGODB_CONNECTIONSTRING`: connection string MongoDB.
-- `ACCESS_TOKEN_SECRET`: khoá ký JWT.
-- `CLOUDINARY_*`: cấu hình upload ảnh.
-- `EMAIL_*`: dịch vụ gửi mail (tuỳ chọn).
-
-## 7. API chính (tóm tắt)
-
-Các route đều có prefix `/api`:
-
-- Auth: `/auth/signup`, `/auth/signin`, `/auth/signout`, `/auth/refresh`, `/auth/forgot-password`, `/auth/reset-password`. @backend/src/routes/authRoute.js#1-25
-- User: `/users/me`, `/users/search`, `/users/uploadAvatar`, `/users/:id`. @backend/src/routes/userRoute.js#1-17
-- Friends: `/friends/requests`, `/friends/requests/:requestId/accept`, `/friends/requests/:requestId/decline`, `/friends`. @backend/src/routes/friendRoute.js#1-21
-- Conversations: `/conversations`, `/conversations/:conversationId/messages`, `/conversations/:conversationId/seen`, `/conversations/:conversationId/members`. @backend/src/routes/conversationRoute.js#1-19
-- Messages: `/messages/direct`, `/messages/group`. @backend/src/routes/messageRoute.js#1-16
-
-Swagger: `backend/src/swagger.json` là nguồn sự thật cho schema/API.
-
-## 8. Cấu trúc thư mục
-
-```
-backend/
-  src/
-    controllers/
-    libs/
-    middlewares/
-    models/
-    routes/
-    socket/
-    swagger.json
-    server.js
-frontend/
-  src/
-    components/
-    lib/
-    pages/
-    stores/
-    services/
+Start the Frontend Application:
+```bash
+npm run dev
+# App will run on http://localhost:5173
 ```
 
-## 9. Lệnh thường dùng
+## 📂 Project Structure
 
-- Backend dev: `npm run dev`
-- Backend start: `npm start`
-- Frontend dev: `npm run dev`
-- Frontend build: `npm run build`
+```
+QuickChat/
+├── backend/                # Node.js Server
+│   ├── src/
+│   │   ├── controllers/    # Request Handlers
+│   │   ├── models/         # Database Schemas
+│   │   ├── routes/         # API Endpoints
+│   │   ├── services/       # Business Logic
+│   │   ├── socket/         # Socket.io Events
+│   │   ├── middlewares/    # Auth & Error Handling
+│   │   ├── libs/           # DB & 3rd Party Clients
+│   │   └── utils/          # Helper Functions
+│   └── package.json
+│
+├── frontend/               # React Client
+│   ├── src/
+│   │   ├── components/     # Reusable UI Components
+│   │   ├── pages/          # Route Views
+│   │   ├── stores/         # Zustand State Stores
+│   │   ├── services/       # API Integration
+│   │   ├── hooks/          # Custom Hooks
+│   │   └── types/          # TypeScript Definitions
+│   └── package.json
+│
+└── README.md               # Documentation
+```
 
-## 10. Ghi chú kỹ sư
+## 🤝 Contributing
 
-- Axios interceptor tự refresh token khi access token hết hạn (tối đa 4 lần retry). @frontend/src/lib/axios.ts#4-55
-- Socket.io xác thực tại middleware `socketAuthMiddleware` và cập nhật `lastSeen` khi disconnect. @backend/src/socket/index.js#4-55
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
 
-## 11. License
+## 📄 License
 
-ISC (tham chiếu `backend/package.json`).
+Distributed under the ISC License. See `package.json` for more information.
