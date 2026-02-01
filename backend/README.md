@@ -104,3 +104,8 @@ npm run dev
 ```bash
 npm start
 ```
+
+## 👤 Author
+
+**Huy & PhD Mentor**
+*   **Philosophy**: Functional Programming, Memory Efficiency, and "Embedded Systems" mindset in Node.js.

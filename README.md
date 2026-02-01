@@ -163,6 +163,12 @@ QuickChat/
 4.  Push to the Branch (`git push origin feature/AmazingFeature`)
 5.  Open a Pull Request
 
+## 👤 Author
+
+**Huy & PhD Mentor**
+*   **Role**: Senior Principal Software Engineer & Researcher
+*   **Focus**: Embedded Systems, High-Performance Computing, and Algorithm Optimization.
+
 ## 📄 License
 
 Distributed under the ISC License. See `package.json` for more information.

@@ -92,3 +92,8 @@ npm run lint
 *   Use `tailwind-merge` (`cn` utility) when accepting `className` props to allow overrides.
 *   Stick to the defined color palette in `index.css` (CSS Variables).
 *   Ensure all interactive elements have accessible labels (via `aria-label` or visible text).
+95: 
+## 👤 Author
+
+**Huy & PhD Mentor**
+*   **Engineering Standard**: Pixel-perfect implementation with strict TypeScript typing.
