@@ -16,8 +16,8 @@ The system follows a **Client-Server** architecture decoupled via REST APIs and 
 
 ```mermaid
 graph TD
-    Client[Client (React + Vite)]
-    LB[Load Balancer / Nginx (Optional)]
+    Client["Client (React + Vite)"]
+    LB["Load Balancer / Nginx (Optional)"]
     Server[Node.js + Express Server]
     DB[(MongoDB)]
     Socket[Socket.io Service]
