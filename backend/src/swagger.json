@@ -1,0 +1,914 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "QuickChat",
+    "version": "1.0.0",
+    "description": ""
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5001/api"
+    }
+  ],
+  "paths": {
+    "/auth/signup": {
+      "post": {
+        "summary": "SignUp",
+        "description": "Đăng ký tài khoản mới. Yêu cầu username, password, email, firstName và lastName.",
+        "tags": [
+          "Authentication"
+        ],
+        "responses": {
+          "204": {
+            "description": "Đăng ký thành công"
+          },
+          "400": {
+            "description": "Thiếu thông tin bắt buộc",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Không thể thiếu username, password, email, firstName, và lastName"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Username đã tồn tại",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "username đã tồn tại"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Lỗi hệ thống",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Lỗi hệ thống"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "color"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/signin": {
+      "post": {
+        "summary": "SignIn",
+        "description": "Log in với username và password. Trả về access token trong res và refresh token trong cookie.",
+        "tags": [
+          "Authentication"
+        ],
+        "responses": {
+          "200": {
+            "description": "User successfully signed in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User Hai User đã logged in!"
+                    },
+                    "accessToken": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "accessToken"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "color"
+                  }
+                },
+                "required": [
+                  "username",
+                  "password"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/signout": {
+      "post": {
+        "summary": "SignOut",
+        "description": "Đăng xuất khỏi hệ thống. Xóa refresh token khỏi cookie và database.",
+        "tags": [
+          "Authentication"
+        ],
+        "responses": {
+          "204": {
+            "description": "Đăng xuất thành công, cookie đã được xóa"
+          },
+          "500": {
+            "description": "Lỗi hệ thống",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Lỗi hệ thống"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "summary": "RefreshToken",
+        "description": "Tạo access token mới từ refresh token trong cookie. Sử dụng khi access token hết hạn.",
+        "tags": [
+          "Authentication"
+        ],
+        "responses": {}
+      }
+    },
+    "/users/me": {
+      "get": {
+        "summary": "AuthMe",
+        "description": "Lấy thông tin user hiện tại đang đăng nhập. Yêu cầu access token hợp lệ.",
+        "tags": [
+          "Authentication"
+        ],
+        "responses": {
+          "200": {
+            "description": "Tạo access token thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token không tồn tại",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Token không tồn tại."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Token không hợp lệ hoặc đã hết hạn",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Token không hợp lệ hoặc đã hết hạn"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Lỗi hệ thống",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Lỗi hệ thống"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/friends/requests": {
+      "post": {
+        "summary": "SendFriendRequest",
+        "description": "Gửi lời mời kết bạn đến một user khác. Cần cung cấp userId của người nhận và tin nhắn tùy chọn.",
+        "tags": [
+          "Friends"
+        ],
+        "responses": {
+          "201": {
+            "description": "Gửi lời mời kết bạn thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Gửi lời mời kết bạn thành công"
+                    },
+                    "friendRequest": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        },
+                        "from": {
+                          "type": "string"
+                        },
+                        "to": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string",
+                          "example": "pending"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Thiếu thông tin hoặc yêu cầu không hợp lệ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Hai người đã là bạn bè"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Người dùng không tồn tại",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Người dùng không tồn tại"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Lỗi hệ thống"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "to": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "GetFriendRequests",
+        "description": "Lấy danh sách các lời mời kết bạn đã nhận (chưa xử lý).",
+        "tags": [
+          "Friends"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lấy danh sách lời mời kết bạn thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "friendRequests": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string"
+                          },
+                          "from": {
+                            "type": "object",
+                            "properties": {
+                              "_id": {
+                                "type": "string"
+                              },
+                              "username": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "type": "string"
+                              },
+                              "avatarUrl": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Lỗi hệ thống"
+          }
+        }
+      }
+    },
+    "/friends/requests/68faed19defb37e90657d7d6/accept": {
+      "post": {
+        "summary": "AcceptFriendRequest",
+        "description": "Chấp nhận lời mời kết bạn. Thay requestId trong URL bằng ID thực tế của lời mời.",
+        "tags": [
+          "Friends"
+        ],
+        "responses": {
+          "200": {
+            "description": "Chấp nhận lời mời kết bạn thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Chấp nhận kết bạn thành công"
+                    },
+                    "friend": {
+                      "type": "object",
+                      "properties": {
+                        "user1": {
+                          "type": "string"
+                        },
+                        "user2": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Không tìm thấy lời mời kết bạn",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Không tìm thấy lời mời kết bạn"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Lỗi hệ thống"
+          }
+        }
+      }
+    },
+    "/friends/requests/68fb124874f8418a6bc83ed1/decline": {
+      "post": {
+        "summary": "DeclineFriendRequest",
+        "description": "Từ chối lời mời kết bạn. Thay requestId trong URL bằng ID thực tế của lời mời.",
+        "tags": [
+          "Friends"
+        ],
+        "responses": {
+          "204": {
+            "description": "Từ chối lời mời kết bạn thành công"
+          },
+          "404": {
+            "description": "Không tìm thấy lời mời kết bạn"
+          },
+          "500": {
+            "description": "Lỗi hệ thống"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/friends/": {
+      "get": {
+        "summary": "GetAllFriends",
+        "description": "Lấy danh sách tất cả bạn bè của user hiện tại.",
+        "tags": [
+          "Friends"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lấy danh sách bạn bè thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "friends": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string"
+                          },
+                          "username": {
+                            "type": "string"
+                          },
+                          "displayName": {
+                            "type": "string"
+                          },
+                          "avatarUrl": {
+                            "type": "string"
+                          },
+                          "email": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Lỗi hệ thống"
+          }
+        }
+      }
+    },
+    "/messages/direct": {
+      "post": {
+        "summary": "SendDirectMessage",
+        "description": "Gửi tin nhắn riêng tư (1-1) đến một user. Cần cung cấp recipientId và nội dung tin nhắn.",
+        "tags": [
+          "Messages"
+        ],
+        "responses": {
+          "201": {
+            "description": "Gửi tin nhắn thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        },
+                        "conversationId": {
+                          "type": "string"
+                        },
+                        "sender": {
+                          "type": "string"
+                        },
+                        "content": {
+                          "type": "string"
+                        },
+                        "createdAt": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Thiếu nội dung tin nhắn"
+          },
+          "500": {
+            "description": "Lỗi hệ thống"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "recipientId": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/conversations/": {
+      "post": {
+        "summary": "CreateConversation",
+        "description": "Tạo cuộc hội thoại mới (nhóm hoặc riêng tư). Cần cung cấp type, name và danh sách memberIds.",
+        "tags": [
+          "Conversations"
+        ],
+        "responses": {
+          "201": {
+            "description": "Tạo cuộc hội thoại thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "conversation": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "example": "group"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "members": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "createdAt": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Thiếu thông tin hoặc type không hợp lệ"
+          },
+          "500": {
+            "description": "Lỗi hệ thống"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "memberIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "GetConversations",
+        "description": "Lấy danh sách tất cả các cuộc hội thoại mà user hiện tại tham gia.",
+        "tags": [
+          "Conversations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lấy danh sách cuộc hội thoại thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "conversations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "members": {
+                            "type": "array"
+                          },
+                          "lastMessage": {
+                            "type": "object"
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Lỗi hệ thống"
+          }
+        }
+      }
+    },
+    "/conversations/68fb2e6a19c501587577291c/messages": {
+      "get": {
+        "summary": "GetMessage",
+        "description": "Lấy tất cả tin nhắn trong một cuộc hội thoại. Thay conversationId trong URL bằng ID thực tế.",
+        "tags": [
+          "Conversations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lấy tin nhắn thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string"
+                          },
+                          "conversationId": {
+                            "type": "string"
+                          },
+                          "sender": {
+                            "type": "object",
+                            "properties": {
+                              "_id": {
+                                "type": "string"
+                              },
+                              "username": {
+                                "type": "string"
+                              },
+                              "displayName": {
+                                "type": "string"
+                              },
+                              "avatarUrl": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "content": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Lỗi hệ thống"
+          }
+        }
+      }
+    },
+    "/messages/group": {
+      "post": {
+        "summary": "SendGroupMessage",
+        "description": "Gửi tin nhắn vào một cuộc hội thoại nhóm. Cần cung cấp conversationId và nội dung tin nhắn.",
+        "tags": [
+          "Messages"
+        ],
+        "responses": {
+          "201": {
+            "description": "Gửi tin nhắn nhóm thành công",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        },
+                        "conversationId": {
+                          "type": "string"
+                        },
+                        "sender": {
+                          "type": "string"
+                        },
+                        "content": {
+                          "type": "string"
+                        },
+                        "createdAt": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Thiếu nội dung tin nhắn"
+          },
+          "500": {
+            "description": "Lỗi hệ thống"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "conversationId": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
+}
